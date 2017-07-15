@@ -17,31 +17,44 @@ object Main extends App {
 
 }
 */
-class BudgetEntry(val amount: Double, val description: String , val date: java.time.LocalDateTime) {
+class Transaction(val amount: Double, val description: String, val date: java.time.LocalDateTime) {
   override def toString: String = "Amount: " + amount + " Description: \"" + description + "\" Date: \"" + date.toString + "\""
 }
 
-class BudgetLine(name: String, budgetedAmount: Double, transactions: List[BudgetEntry]) {
+class BudgetLine(val name: String, val budgetedAmount: Double, val transactions: List[Transaction]) {
   def currentAmount : Double = {
     var sum = 0.0
     for (entry <- transactions) sum += entry.amount
     sum
   }
 
-  def printTransactions = transactions.mkString("\n")
+  def addTransaction(transaction: Transaction) : BudgetLine =
+    new BudgetLine(name, budgetedAmount, transaction :: transactions)
 
-  override def toString: String = "Budgeted: " + budgetedAmount + ", Spent: " + currentAmount
+  def printTransactions : String = transactions.mkString("\n")
+
+  override def toString: String = "Category: " + name + ". Budgeted: " + budgetedAmount + ", Spent: " + currentAmount
+}
+class Budget(val name: String, val budgetLines: List[BudgetLine]) {
+
+  def addBudgetLine(budgetLine: BudgetLine) : Budget = new Budget(name, budgetLine :: budgetLines)
+
+  def printBudget : String = budgetLines.mkString("\n")
 }
 
 object Main extends App {
-  val a = new BudgetEntry(50, "memes", java.time.LocalDateTime.now())
-  val b = new BudgetEntry(25, "memes", java.time.LocalDateTime.now())
-  val c = new BudgetEntry(30, "memes", java.time.LocalDateTime.now())
+  val a = new Transaction(50, "memes", java.time.LocalDateTime.now())
+  val b = new Transaction(25, "memes", java.time.LocalDateTime.now())
+  val c = new Transaction(30, "memes", java.time.LocalDateTime.now())
 
-  val budget = new BudgetLine("memes", 200, List(a,b,c))
-  println(budget)
+  val budgetLine = new BudgetLine("memes", 200, List(a,b))
+  println(budgetLine)
 
-  println(budget.printTransactions)
+  println(budgetLine.printTransactions)
+
+  val budgetAdd = budgetLine.addTransaction(c)
+  println(budgetAdd)
+  println(budgetAdd.printTransactions)
 
 
 }
